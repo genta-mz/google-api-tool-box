@@ -1,0 +1,32 @@
+name: Build Package
+description: Build typescript code
+
+inputs:
+  npm_token:
+    description: npm token
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+      with:
+        cache: npm
+    - uses: actions/cache@v3
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: './node_modules'
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+    - name: Install NPM
+      shell: bash
+      run: npm install
+    - name: Build
+      shell: bash
+      run: npm run build
+    - uses: actions/upload-artifact@v4
+      with:
+        name: package
+        path: ./dist/

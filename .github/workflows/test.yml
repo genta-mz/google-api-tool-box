@@ -1,0 +1,16 @@
+name: Test
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build
+      - name: Test
+        run: npm run test
+      - name: Lint
+        run: npm run lint | tee -a "${GITHUB_STEP_SUMMARY}"

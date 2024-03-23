@@ -1,14 +1,18 @@
 name: Release Package
 
 on:
-  workflow_dispatch:
-    inputs:
-      release-version:
-        type: string
-        required: true
+  release:
+    types: [published]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: release "${{ inputs.release-version }}"
+      - uses: actions/checkout@v4
+      - name: Version Up
+        run: |
+          npm version ${{ github.event.release.name }}
+          git push
+      - uses: ./.github/actions/build
+      - name: Publish
+        run: npm publish --access public
