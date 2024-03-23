@@ -28,6 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Version Up
+        id: version-up
+        continue-on-error: true
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -35,6 +37,7 @@ jobs:
           npm version "${{ inputs.version }}"
       - uses: peter-evans/create-pull-request@v5
         id: create-pr
+        if: steps.version-up.outcome == 'success'
         with:
           commit-message: 'update version: ${{ inputs.version }}'
           delete-branch: true
@@ -42,7 +45,7 @@ jobs:
           branch-suffix: timestamp
           base: ${{ github.ref_name }}
       - uses: peter-evans/enable-pull-request-automerge@v3
-        if: inputs.auto-merge
+        if: inputs.auto-merge && steps.create-pr.outputs.pull-request-number
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
