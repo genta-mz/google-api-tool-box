@@ -1,0 +1,14 @@
+name: Release Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-version:
+        type: string
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: release "${{ inputs.release-version }}"
