@@ -81,6 +81,133 @@ export class CellData {
   }
 }
 
+export interface GetSheetValueParams {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * Sheet range(or sheet name)
+   */
+  range?: string;
+  /**
+   * Sheet ranges(To retrieve multiple sheets or ranges at once.)
+   */
+  ranges?: string[];
+}
+
+export interface GetSheetCellsParams {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * Sheet range(or sheet name)
+   */
+  range?: string;
+  /**
+   * Sheet ranges(To retrieve multiple sheets or ranges at once.)
+   */
+  ranges?: string[];
+}
+
+export interface SetSheetValuesParams {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * Sheet range(or sheet name)
+   */
+  range?: string;
+  /**
+   * 2D array of type string representing a table of sheets.
+   */
+  rows?: string[][];
+}
+
+export interface UpdateSheetPropertiesParamsRequest {
+  /**
+   * Name of sheet to be updated.
+   */
+  sheetName?: string;
+  /**
+   * Id of sheet to be updated.
+   */
+  sheetId?: number;
+  /**
+   * Updates.(sheets_v4.Schema$SheetProperties)
+   */
+  properties: Partial<sheets_v4.Schema$SheetProperties>;
+}
+
+export interface UpdateSheetPropertiesParams {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * Update requests for each sheets.
+   */
+  requests: UpdateSheetPropertiesParamsRequest[];
+}
+
+export interface UpdateSheetsParamsRequest {
+  /**
+   * Id of sheet to be updated.
+   */
+  sheetId?: number;
+  /**
+   * Range(or sheet name) to be updated.
+   */
+  range?: string;
+  /**
+   * 2D array of type CellData representing a table of sheets.
+   */
+  rows?: (CellData | string | boolean | number)[][];
+  /**
+   * Update properties.(sheets_v4.Schema$SheetProperties)
+   */
+  properties?: Partial<sheets_v4.Schema$SheetProperties>;
+}
+
+export interface UpdateSheetsRequest {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * Update requests for each sheets.
+   */
+  requests: UpdateSheetsParamsRequest[];
+  /**
+   * New Spreadsheet Title
+   */
+  spreadSheetTitle?: string;
+}
+
+export interface GetSheetIdByName {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * SheetName
+   */
+  sheetName: string;
+}
+
+export interface UpdateSpreadsheetTitleParams {
+  /**
+   * SpreadsheetId
+   */
+  spreadsheetId: string;
+  /**
+   * New Title
+   */
+  title: string;
+}
+
 export class GoogleSpreadsheetFacade {
   private readonly context: GoogleAPIContext;
   private readonly spreadsheetContext: {
@@ -98,16 +225,9 @@ export class GoogleSpreadsheetFacade {
    * Get the values of a cell in a spreadsheet.
    *
    * @param params
-   *  spreadsheetId   SpreadsheetId
-   *  range           Sheet range(or sheet name)
-   *  ranges          Sheet ranges(To retrieve multiple sheets or ranges at once.)
    * @returns
    */
-  public async getSheetValues(params: {
-    spreadsheetId: string;
-    range?: string;
-    ranges?: string[];
-  }): Promise<Map<string, string[][]>> {
+  public async getSheetValues(params: GetSheetValueParams): Promise<Map<string, string[][]>> {
     const ranges = params.ranges || [params.range || ''];
 
     const response = await this.context.runner.withRetry(
@@ -146,16 +266,9 @@ export class GoogleSpreadsheetFacade {
    * Get the cells in a spreadsheet.
    *
    * @param params
-   *  spreadsheetId   SpreadsheetId
-   *  range           Sheet range(or sheet name)
-   *  ranges          Sheet ranges(To retrieve multiple sheets or ranges at once.)
    * @returns
    */
-  public async getSheetCells(params: {
-    spreadsheetId: string;
-    range?: string;
-    ranges?: string[];
-  }): Promise<Map<string, CellInfo[][]>> {
+  public async getSheetCells(params: GetSheetCellsParams): Promise<Map<string, CellInfo[][]>> {
     const ranges = params.ranges || [params.range || ''];
 
     const response = await this.context.runner.withRetry(
@@ -235,12 +348,9 @@ export class GoogleSpreadsheetFacade {
    * Sets the value of a cell in the spreadsheet.
    *
    * @param params
-   *  spreadsheetId   SpreadsheetId
-   *  range           Sheet range(or sheet name)
-   *  rows            2D array of type string representing a table of sheets.
    * @returns
    */
-  public async setSheetValues(params: { spreadsheetId: string; range?: string; rows?: string[][] }) {
+  public async setSheetValues(params: SetSheetValuesParams) {
     return this.updateSheets({
       spreadsheetId: params.spreadsheetId,
       requests: [{ range: params.range, rows: params.rows }],
@@ -250,17 +360,9 @@ export class GoogleSpreadsheetFacade {
   /**
    * Update spreadsheet properties.
    * @param params
-   *  spreadsheetId   SpreadsheetId
-   *  requests        Update requests for each sheets.
-   *    sheetName     Name of sheet to be updated.
-   *    sheeetId      Id of sheet to be updated.
-   *    properties    Updates.(sheets_v4.Schema$SheetProperties)
    * @returns
    */
-  public async updateSheetProperties(params: {
-    spreadsheetId: string;
-    requests: { sheetName?: string; sheetId?: number; properties: Partial<sheets_v4.Schema$SheetProperties> }[];
-  }) {
+  public async updateSheetProperties(params: UpdateSheetPropertiesParams) {
     const updateRequests = await Promise.all(
       params.requests.map(async (item) => {
         const sheetId = item.sheetId
@@ -282,26 +384,11 @@ export class GoogleSpreadsheetFacade {
 
   /**
    * Update spreadsheet cells.
+   *
    * @param params
-   *  spreadsheetId   SpreadsheetId
-   *  requests        Update requests for each sheets.
-   *    sheeetId      Id of sheet to be updated.
-   *    range         Range(or sheet name) to be updated.
-   *    rows          2D array of type CellData representing a table of sheets.
-   *    properties    Update properties.(sheets_v4.Schema$SheetProperties)
-   * spreadSheetTitle New Spreadsheet Title
    * @returns
    */
-  public async updateSheets(params: {
-    spreadsheetId: string;
-    requests: {
-      sheetId?: number;
-      range?: string;
-      rows?: (CellData | string | boolean | number)[][];
-      properties?: Partial<sheets_v4.Schema$SheetProperties>;
-    }[];
-    spreadSheetTitle?: string;
-  }) {
+  public async updateSheets(params: UpdateSheetsRequest) {
     const requests: sheets_v4.Schema$Request[] = [];
     await Promise.all(
       params.requests.map(async (item) => {
@@ -401,11 +488,9 @@ export class GoogleSpreadsheetFacade {
    * Get sheet ID from sheet name.
    *
    * @param params
-   *  spreadsheetId   SpreadsheetId
-   *  sheetName       SheetName
    * @returns
    */
-  public async getSheetIdByName(params: { spreadsheetId: string; sheetName: string }) {
+  public async getSheetIdByName(params: GetSheetIdByName) {
     if (!this.spreadsheetContext.sheetIdMap.has(params.spreadsheetId)) {
       const response = await this.context.runner.withRetry(
         () =>
@@ -455,7 +540,7 @@ export class GoogleSpreadsheetFacade {
    *  title           New Title
    * @returns
    */
-  public async updateSpreadsheetTitle(params: { spreadsheetId: string; title: string }) {
+  public async updateSpreadsheetTitle(params: UpdateSpreadsheetTitleParams) {
     return this.updateSheets({ spreadsheetId: params.spreadsheetId, requests: [], spreadSheetTitle: params.title });
   }
 }
