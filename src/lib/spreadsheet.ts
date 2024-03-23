@@ -2,24 +2,24 @@ import { google, sheets_v4 } from 'googleapis';
 import { getAlphabetByColumn, getColumnByAlphabet, RangeInfo, code2Color } from './helper';
 import { GoogleAPIContext } from './context';
 
-export interface CellInfo {
-  cell: sheets_v4.Schema$CellData;
+export interface CellStatus {
+  data: sheets_v4.Schema$CellData;
   width: number;
   height: number;
   visible: boolean;
 }
 
-type CellValueType = string | number | boolean;
+type CellValue = string | number | boolean;
 
-export class CellData {
+export class Cell {
   private readonly data: sheets_v4.Schema$CellData;
 
-  constructor(v?: CellValueType) {
+  constructor(v?: CellValue) {
     this.data = {};
     this.setValue(v || '');
   }
 
-  public setValue(v: CellValueType) {
+  public setValue(v: CellValue) {
     if (typeof v === 'string') {
       this.data.userEnteredValue = { stringValue: `${v}` };
     } else if (typeof v == 'number') {
@@ -164,7 +164,7 @@ export interface UpdateSheetsParamsRequest {
   /**
    * 2D array of type CellData representing a table of sheets.
    */
-  rows?: (CellData | string | boolean | number)[][];
+  rows?: (Cell | string | boolean | number)[][];
   /**
    * Update properties.(sheets_v4.Schema$SheetProperties)
    */
@@ -268,7 +268,7 @@ export class GoogleSpreadsheetFacade {
    * @param params
    * @returns
    */
-  public async getSheetCells(params: GetSheetCellsParams): Promise<Map<string, CellInfo[][]>> {
+  public async getSheetCells(params: GetSheetCellsParams): Promise<Map<string, CellStatus[][]>> {
     const ranges = params.ranges || [params.range || ''];
 
     const response = await this.context.runner.withRetry(
@@ -290,7 +290,7 @@ export class GoogleSpreadsheetFacade {
     );
 
     const requestRangeInfos = params.ranges?.map((item) => new RangeInfo(item)) || [];
-    const result = new Map<string, CellInfo[][]>();
+    const result = new Map<string, CellStatus[][]>();
 
     response.data.sheets?.forEach((sheet) => {
       const sheetName = sheet.properties?.title || '';
@@ -317,14 +317,14 @@ export class GoogleSpreadsheetFacade {
         const columnMetadatas = grid.columnMetadata || [];
         const rowMetadatas = grid.rowMetadata || [];
 
-        const data: CellInfo[][] = (grid.rowData || []).map((row, rowIndex) => {
+        const data: CellStatus[][] = (grid.rowData || []).map((row, rowIndex) => {
           const rowMetadata = rowMetadatas.length ? rowMetadatas[rowIndex] : {};
 
-          return (row.values || []).map((value, valueIndex): CellInfo => {
+          return (row.values || []).map((value, valueIndex): CellStatus => {
             const colMetadata = columnMetadatas.length ? columnMetadatas[valueIndex] : {};
 
             return {
-              cell: value,
+              data: value,
               width: colMetadata.pixelSize || 100,
               height: rowMetadata.pixelSize || 20,
               visible: !(
@@ -441,11 +441,11 @@ export class GoogleSpreadsheetFacade {
                 },
                 rows: item.rows.map((row) => ({
                   values: row.map((value): sheets_v4.Schema$CellData => {
-                    if (value instanceof CellData) {
+                    if (value instanceof Cell) {
                       return value.exporse();
                     }
 
-                    return new CellData(value).exporse();
+                    return new Cell(value).exporse();
                   }),
                 })),
               };
