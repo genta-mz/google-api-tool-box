@@ -33,4 +33,4 @@ jobs:
           delete-branch: true
           title: 'update version: ${{ inputs.version }}'
           branch-suffix: timestamp
-          base: ${{ github.ref }}
+          base: ${{ github.ref_name }}
