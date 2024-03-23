@@ -1,4 +1,4 @@
-name: Test
+name: Update Version
 
 on:
   workflow_dispatch:
@@ -17,7 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Version Up
-        run: npm version "${{ inputs.version }}"
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          npm version "${{ inputs.version }}"
       - uses: peter-evans/create-pull-request@v5
         with:
           commit-message: 'update version: ${{ inputs.version }}'
