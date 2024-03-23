@@ -10,5 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/build
+        with:
+          npm-token: ${{ secrets.NPM_TOKEN }}
       - name: Publish
+        env:
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
