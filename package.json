@@ -1,6 +1,6 @@
 {
   "name": "@genta-mz/google-api-tool-box",
-  "version": "0.9.16",
+  "version": "1.0.0",
   "description": "Library for more convenient use of Google API",
   "main": "dist/index.js",
   "files": [
