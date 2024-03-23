@@ -5,7 +5,7 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,4 +13,4 @@ jobs:
       - name: Test
         run: npm run test
       - name: Lint
-        run: npm run lint | tee -a "${GITHUB_SUMMARY}"
+        run: npm run lint | tee -a "${GITHUB_STEP_SUMMARY}"
