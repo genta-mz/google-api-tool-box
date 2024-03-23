@@ -11,4 +11,5 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - run: release "${{ inputs.release-version }}"
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build
