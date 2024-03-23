@@ -2,7 +2,7 @@ name: Build Package
 description: Build typescript code
 
 inputs:
-  npm_token:
+  npm-token:
     description: npm token
     required: true
 
@@ -11,7 +11,7 @@ runs:
   steps:
     - uses: actions/setup-node@v4
       env:
-        NODE_AUTH_TOKEN: ${{ inputs.npm_token }}
+        NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
       with:
         cache: npm
     - uses: actions/cache@v3
