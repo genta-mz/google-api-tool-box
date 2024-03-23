@@ -1,6 +1,6 @@
 import { GoogleAPIToolBox } from '../../src';
 import yargs from 'yargs';
-import { CellInfo } from '../../src/lib/spreadsheet';
+import { CellStatus } from '../../src/lib/spreadsheet';
 
 (async () => {
   const argv = await yargs
@@ -36,9 +36,9 @@ import { CellInfo } from '../../src/lib/spreadsheet';
     throw new Error('Sheet name or range not found.');
   }
 
-  const createStyleText = (info: CellInfo) =>
-    `w:${info.width},r:${info.cell.effectiveFormat?.backgroundColor?.red},g:${info.cell.effectiveFormat?.backgroundColor?.green},b:${info.cell.effectiveFormat?.backgroundColor?.blue}`;
+  const createStyleText = (cell: CellStatus) =>
+    `w:${cell.width},r:${cell.data.effectiveFormat?.backgroundColor?.red},g:${cell.data.effectiveFormat?.backgroundColor?.green},b:${cell.data.effectiveFormat?.backgroundColor?.blue}`;
   for (const row of values) {
-    console.log(row.map((info) => `${info.cell.formattedValue}/${createStyleText(info)}`).join(','));
+    console.log(row.map((info) => `${info.data.formattedValue}/${createStyleText(info)}`).join(','));
   }
 })();

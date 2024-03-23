@@ -1,6 +1,6 @@
 import { GoogleAPIToolBox } from '../../src';
 import yargs from 'yargs';
-import { CellData } from '../../src/lib/spreadsheet';
+import { Cell } from '../../src/lib/spreadsheet';
 
 (async () => {
   const argv = await yargs
@@ -33,9 +33,9 @@ import { CellData } from '../../src/lib/spreadsheet';
         range: `${argv.sheetName}!A2:C`,
         rows: [
           [
-            new CellData('name').setBackgroundColor('#ff00ff').setFontBold(),
-            new CellData('country').setBackgroundColor('#ff00ff').setFontBold(),
-            new CellData('email').setBackgroundColor('#ff00ff').setFontBold(),
+            new Cell('name').setBackgroundColor('#ff00ff').setFontBold(),
+            new Cell('country').setBackgroundColor('#ff00ff').setFontBold(),
+            new Cell('email').setBackgroundColor('#ff00ff').setFontBold(),
           ],
           ['jonathan', 'us', 'jonathan@email.com'],
           ['hanako', 'ja', 'hanako@email.com'],
