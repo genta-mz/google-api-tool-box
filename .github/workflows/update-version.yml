@@ -6,11 +6,17 @@ on:
       version:
         type: string
         required: true
+      auto-merge:
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       version:
         type: string
         required: true
+      auto-merge:
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -28,9 +34,15 @@ jobs:
 
           npm version "${{ inputs.version }}"
       - uses: peter-evans/create-pull-request@v5
+        id: create-pr
         with:
           commit-message: 'update version: ${{ inputs.version }}'
           delete-branch: true
           title: 'update version: ${{ inputs.version }}'
           branch-suffix: timestamp
           base: ${{ github.ref_name }}
+      - uses: peter-evans/enable-pull-request-automerge@v3
+        if: inputs.auto-merge
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
