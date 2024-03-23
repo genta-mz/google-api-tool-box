@@ -130,7 +130,8 @@ export class GoogleSpreadsheetFacade {
     const result = new Map<string, string[][]>();
     response.data.valueRanges?.forEach((item) => {
       const key =
-        ranges.find((r) => r === item.range) || ranges.find((r) => item.range?.startsWith(`${r.replace(/!.*$/, '')}!`));
+        ranges.find((r) => r === item.range) ||
+        ranges.find((r) => item.range?.replace(/'/g, '').startsWith(`${r.replace(/!.*$/, '')}!`));
       if (!key) {
         return;
       }
