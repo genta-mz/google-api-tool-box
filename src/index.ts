@@ -3,6 +3,7 @@ import { GoogleAPIContext } from './lib/context';
 import { GoogleDriveFacade } from './lib/drive';
 import { ErrorConfig, PromiseRunner } from './lib/helper';
 import { GoogleSpreadsheetFacade } from './lib/spreadsheet';
+export * from './lib/oauth2';
 
 export class GoogleAPIToolBox {
   public readonly spreadSheet: GoogleSpreadsheetFacade;
